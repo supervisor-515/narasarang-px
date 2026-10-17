@@ -1,5 +1,5 @@
 /* PX픽 서비스 워커 — 같은 출처 자산은 stale-while-revalidate (캐시 먼저 보여주고 뒤에서 갱신) */
-var CACHE = 'pxpick-v1';
+var CACHE = 'pxpick-v2-review2';
 var ASSETS = [
   './',
   'index.html',

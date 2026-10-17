@@ -1,0 +1,75 @@
+// DOM integration: NODE_PATH=/path/to/jsdom/node_modules node tests/ui.test.js
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const {JSDOM} = require('jsdom');
+const root=path.join(__dirname,'..');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8').replace(/<script[\s\S]*?<\/script>/g,'');
+const code=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
+const data=require('../data/cards.json');
+const tick=()=>new Promise(r=>setTimeout(r,10));
+async function boot(stored, fail=false, offline=false) {
+ const dom=new JSDOM(html,{runScripts:'outside-only',url:'https://example.test/'}), w=dom.window;
+ w.scrollTo=()=>{};w.confirm=()=>true;
+ const DateBase=w.Date;w.Date=class extends DateBase {constructor(...a){super(...(a.length?a:['2026-10-17T03:00:00Z']));}};
+ if(stored)w.localStorage.setItem('pxpick:v2',stored);
+ w.fetch=()=>fail?Promise.reject(Error('offline')):Promise.resolve({ok:true,json:()=>Promise.resolve(data)});
+ if(offline)Object.defineProperty(w.navigator,'serviceWorker',{value:{ready:Promise.resolve({active:{}})}});
+ w.eval(code);await tick();return dom;
+}
+(async()=>{
+ let dom=await boot(), w=dom.window,d=w.document;
+ const $=id=>d.getElementById(id);
+ const input=(id,value)=>{$(id).value=value;$(id).dispatchEvent(new w.Event('input',{bubbles:true}));};
+ assert.equal($('amount').readOnly,false);assert.equal($('amount').inputMode,'numeric');assert.equal(d.querySelector('.keypad'),null);
+ input('amount','29,000');assert.match($('result').textContent,/5,000원/);
+ $('record-best').click();let saved=JSON.parse(w.localStorage.getItem('pxpick:v2'));
+ assert.equal(saved.records[0].cardId,'hana');assert.equal(saved.records[0].benefit,5000);assert.match($('result').textContent,/일 잔여 한도까지만 적용/);
+ $('tab-records').click();assert.equal($('panel-records').hidden,false);assert.equal($('panel-compare').hidden,true);
+ input('record-date','2026-10-10');input('record-amount','1500');input('record-card','shinhan');
+ assert.match($('record-preview').textContent,/750원/);
+ $('record-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+ saved=JSON.parse(w.localStorage.getItem('pxpick:v2'));assert.equal(saved.records.length,2);assert.equal(saved.records[1].benefit,750);
+ $('record-list').querySelector('button').click();assert.equal(JSON.parse(w.localStorage.getItem('pxpick:v2')).records.length,1);
+ $('tab-settings').click();$('manual-special').value='1';$('manual-special').dispatchEvent(new w.Event('change'));
+ for(const c of [...$('owned-cards').querySelectorAll('input')]) { const current=$('owned-cards').querySelector(`input[value="${c.value}"]`);current.checked=false;current.dispatchEvent(new w.Event('change')); }
+ $('tab-compare').click();assert.match($('result').textContent,/보유 카드를 선택/);assert.equal($('record-best').disabled,true);
+ saved=w.localStorage.getItem('pxpick:v2');w.close();
+ dom=await boot(saved);w=dom.window;d=w.document;
+ assert.equal(d.getElementById('manual-special').value,'1');assert.equal(d.querySelectorAll('#owned-cards input:checked').length,0);w.close();
+ dom=await boot('{broken',true);w=dom.window;d=w.document;assert.match(d.getElementById('result').textContent,/다시 시도/);w.close();
+ dom=await boot(null,false,true);w=dom.window;d=w.document;
+ assert.equal($('offline-status').hidden,false);
+ // 17일 미리보기는 비교에만 적용하고 두 저장 경로 모두 실제 날짜로 계산한다.
+ $('toggle-day10').click();input('amount','1500');
+ assert.match($('result').textContent,/750원/);
+ input('record-date','2026-10-17');input('record-card','shinhan');input('record-amount','1500');
+ assert.match($('record-preview').textContent,/300원/);
+ $('record-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+ saved=JSON.parse(w.localStorage.getItem('pxpick:v2'));assert.equal(saved.records[0].benefit,300);
+ assert.match($('record-feedback').textContent,/저장했어요/);assert.equal($('quick-feedback').textContent,'');
+ $('record-feedback').querySelector('button').click();assert.equal(JSON.parse(w.localStorage.getItem('pxpick:v2')).records.length,0);
+ input('quick-card','shinhan');$('quick-card').dispatchEvent(new w.Event('change'));
+ assert.equal($('record-best').textContent,'신한으로 결제 기록');
+ $('record-best').click();saved=JSON.parse(w.localStorage.getItem('pxpick:v2'));assert.equal(saved.records[0].benefit,300);
+ assert.match($('quick-feedback').textContent,/저장했어요.*실행 취소/);
+ $('quick-feedback').querySelector('button').click();
+ $('toggle-day10').click();input('amount','50000');
+ assert.equal($('quick-card').querySelectorAll('option').length,4);
+ assert.equal([...$('quick-card').options].filter(o=>o.textContent.includes('추천 1위')).length,2);
+ input('quick-card','hana');$('quick-card').dispatchEvent(new w.Event('change'));assert.equal($('record-best').textContent,'하나로 결제 기록');
+ $('record-best').click();assert.equal(JSON.parse(w.localStorage.getItem('pxpick:v2')).records[0].cardId,'hana');
+ $('quick-feedback').querySelector('button').click();
+ let adjustment=$('month-adjustments').querySelector('[data-card="hana"]');adjustment.value='8000';adjustment.dispatchEvent(new w.Event('change'));
+ input('amount','20000');assert.match($('result').textContent,/월 잔여 2,000원/);assert.match($('month-summary').textContent,/하나 · 8,000원/);
+ assert.match($('result').textContent,/캐시백/);assert.match($('month-summary').textContent,/예상 혜택/);assert(!d.body.textContent.includes('받은 혜택'));
+ const panel=$('panel-records');assert(panel.innerHTML.indexOf('month-summary')<panel.innerHTML.indexOf('record-list'));assert(panel.innerHTML.indexOf('record-list')<panel.innerHTML.indexOf('record-form'));
+ saved=JSON.parse(w.localStorage.getItem('pxpick:v2'));saved.settings.ownedCards=['ibk'];saved.settings.ibkMode='none';saved.settings.manualSpecialUsed=1;w.close();
+ dom=await boot(JSON.stringify(saved));w=dom.window;d=w.document;input('amount','20000');
+ assert.equal(d.querySelectorAll('.rank--off').length,1);assert.match($('result').textContent,/참고/);assert(!/보유 카드를 선택/.test($('result').textContent));assert.equal($('record-best').disabled,true);
+ assert.equal($('manual-special').value,'1');assert.deepEqual(JSON.parse(w.localStorage.getItem('pxpick:v2')).settings.manualSpecialUsed,{'2026':1});
+ $('manual-special').dispatchEvent(new w.Event('change'));saved=JSON.parse(w.localStorage.getItem('pxpick:v2'));assert.deepEqual(saved.settings.manualSpecialUsed,{'2026':1});
+ w.close();saved.settings.manualSpecialUsed={'2025':2};dom=await boot(JSON.stringify(saved));w=dom.window;d=w.document;assert.equal($('manual-special').value,'0');w.close();
+ assert(!code.includes('IntersectionObserver'));assert(!code.includes("document.addEventListener('keydown'"));
+ console.log('UI 통과: 미리보기 저장 분리·카드 선택·실행 취소·연도 마이그레이션·IBK 참고 행·월 보정·상태 칩·기록 순서·오프라인 준비· 일반 입력·탭·빠른 기록·과거 날짜 계산·삭제·설정 저장/복원·빈 보유·로드 오류');
+})().catch(e=>{console.error(e);process.exitCode=1;});

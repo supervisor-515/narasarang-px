@@ -78,8 +78,8 @@ console.log(`  2026-10-10T15:00Z → ${check('seoul day next', engine.seoulDate(
 console.log('구간 힌트');
 const hintOpts = { ibkMode: 'soldier', isDay10: false };
 for (const [amount, expected] of [
-  [29000, '1,000원 더 담아 30,000원에 맞추면 신한 혜택 6,000원 (+5,000)'],
-  [65000, '5,000원 더 담아 70,000원에 맞추면 IBK 혜택 14,000원 (+7,500)'],
+  [29000, '1,000원 더 담아 30,000원에 맞추면 최대 혜택 6,000원 (지금보다 +1,000)'],
+  [65000, '5,000원 더 담아 70,000원에 맞추면 최대 혜택 14,000원 (지금보다 +1,000)'],
   [150000, null],
 ]) {
   const hint = engine.tierHint(data.cards, amount, hintOpts);
