@@ -1,0 +1,340 @@
+{
+  "cards": [
+    {
+      "account": "하나은행 계좌 연결 필요",
+      "bank": "하나은행",
+      "benefitType": "캐시백",
+      "color": "#00A19A",
+      "highlights": [
+        {
+          "cond": "전월 10만원 · 월 1회 · 본인 1매",
+          "title": "에버랜드·롯데월드 50% 현장할인"
+        },
+        {
+          "cond": "전월 10만원 · 건당 1만원 이상 · 건당 최대 4천원",
+          "title": "스타벅스 20% 캐시백"
+        },
+        {
+          "cond": "실적 무관 · 월 3천원 · 일 1천원",
+          "title": "쿠팡·네이버플러스스토어 20% 캐시백"
+        }
+      ],
+      "id": "hana",
+      "name": "하나 나라사랑카드",
+      "px": {
+        "capPerTxn": 20000,
+        "capUnder": {
+          "cap": 5000,
+          "under": 30000
+        },
+        "conditions": [
+          "전월 실적 조건 없음",
+          "건당 최대: 3만원 미만 5천원 / 이상 2만원",
+          "PX·군마트 (해군·해병대 군마트 포함)"
+        ],
+        "limits": [
+          {
+            "dayCap": 5000,
+            "monthCap": 10000,
+            "under": 30000
+          },
+          {
+            "dayCap": 20000,
+            "monthCap": 100000,
+            "over": 30000
+          }
+        ],
+        "summary": "3만원 미만 30% · 3만원 이상 20%",
+        "tiers": [
+          [
+            0,
+            30
+          ],
+          [
+            30000,
+            20
+          ]
+        ]
+      },
+      "requirement": "실적 무관",
+      "short": "하나"
+    },
+    {
+      "account": "IBK기업은행 계좌 연결 · BC카드",
+      "bank": "IBK기업은행",
+      "benefitType": "청구할인",
+      "color": "#1E63C6",
+      "highlights": [
+        {
+          "cond": "전월 8만원 · 월 1회 · 연 2회",
+          "title": "놀이공원 자유이용권 50% 현장할인"
+        },
+        {
+          "cond": "실적 무관 · 1일 1회 · ~2026.12.31",
+          "title": "메가MGC커피 앱오더 평일 20% · 주말 30%"
+        },
+        {
+          "cond": "전월 8만원 · 동반 1인까지 · 월 1회",
+          "title": "CGV 현장할인 1인 1,500원"
+        }
+      ],
+      "id": "ibk",
+      "name": "IBK 나라사랑카드",
+      "px": {
+        "capPerTxn": 50000,
+        "capUnder": {
+          "cap": 10000,
+          "under": 30000
+        },
+        "conditions": [
+          "현역병 인정 필요 (IBK 장병내일준비적금 보유 또는 복무확인서 등 제출)",
+          "IBK 급여이체 시 다음 달부터: 3만원 미만 월 6회, 3만원 이상 횟수 무제한, 특별할인 연 2회",
+          "두 금액 구간의 한도·횟수는 따로 적용"
+        ],
+        "limits": [
+          {
+            "monthCap": 10000,
+            "monthCount": 3,
+            "monthCountSalary": 6,
+            "under": 30000
+          },
+          {
+            "monthCap": 50000,
+            "monthCount": 2,
+            "monthCountSalary": null,
+            "over": 30000
+          }
+        ],
+        "special": {
+          "fixed": 50000,
+          "minAmount": 200000,
+          "note": "기본할인과 중복 적용",
+          "yearCount": 1,
+          "yearCountSalary": 2
+        },
+        "summary": "3만원 미만 15% · 3만원↑ 10% · 7만원↑ 20% · 10만원↑ 30%",
+        "tiers": [
+          [
+            0,
+            15
+          ],
+          [
+            30000,
+            10
+          ],
+          [
+            70000,
+            20
+          ],
+          [
+            100000,
+            30
+          ]
+        ]
+      },
+      "requirement": "실적 무관 · 현역병 인정 필요",
+      "short": "IBK"
+    },
+    {
+      "account": "신한은행 계좌 연결 시에만 캐시백 제공",
+      "bank": "신한은행",
+      "benefitType": "캐시백",
+      "color": "#2A63F6",
+      "highlights": [
+        {
+          "cond": "전월 30만원 · 연 3회 · 본인",
+          "title": "에버랜드·롯데월드·서울랜드 50% 현장할인"
+        },
+        {
+          "cond": "전월 10만원 · 월 1회 · 동반 1인 포함 2매",
+          "title": "CGV 2D 6,000원 관람"
+        },
+        {
+          "cond": "전월 10만원 · 일 1회 1천원 · 월 5회",
+          "title": "편의점(GS25·CU) 20% 캐시백"
+        }
+      ],
+      "id": "shinhan",
+      "name": "신한 나라사랑카드",
+      "px": {
+        "capPerTxn": null,
+        "capUnder": {
+          "cap": 1000,
+          "under": 30000
+        },
+        "conditions": [
+          "전월 실적 조건 없음",
+          "3만원 미만은 1회 최대 1천원 (매월 10일 50%도 동일)",
+          "월 최대 10만원",
+          "GS25는 군부대 안 해군마트만 PX로 적용"
+        ],
+        "limits": [
+          {
+            "dayCount": 1,
+            "under": 30000
+          },
+          {
+            "monthCap": 100000
+          }
+        ],
+        "summary": "20% · 매월 10일은 3만원 미만 50%",
+        "tiers": [
+          [
+            0,
+            20
+          ]
+        ],
+        "tiersOnDay10": [
+          [
+            0,
+            50
+          ],
+          [
+            30000,
+            20
+          ]
+        ]
+      },
+      "requirement": "실적 무관",
+      "short": "신한"
+    },
+    {
+      "account": "KB국민은행 계좌 연결 · 국내전용",
+      "bank": "KB국민은행",
+      "benefitType": "환급할인",
+      "color": "#FFBC00",
+      "highlights": [
+        {
+          "cond": "전월 10만원 · 3만원 이상 결제 시 · 건당 최대 25,000원",
+          "title": "놀이공원 50% 환급할인"
+        },
+        {
+          "cond": "전월 10만원 · 1만원 이상 · 건당 최대 7천원",
+          "title": "CGV 35% 환급할인"
+        },
+        {
+          "cond": "전월 10만원 · 월 최대 1만원",
+          "title": "대중교통 20% 청구할인"
+        }
+      ],
+      "id": "kb",
+      "name": "KB국민 나라사랑카드",
+      "px": {
+        "capPerTxn": 50000,
+        "capUnder": {
+          "cap": 1000,
+          "under": 30000
+        },
+        "conditions": [
+          "현역병 대상 · 전월 실적 조건 없음",
+          "3만원 미만은 1회 최대 1천원, 월 2회",
+          "GS25 해군마트 포함"
+        ],
+        "limits": [
+          {
+            "monthCount": 2,
+            "under": 30000
+          },
+          {
+            "monthCap": 50000,
+            "over": 30000
+          }
+        ],
+        "summary": "3만원 미만 10% · 3만원↑ 5% · 7만원↑ 10% · 10만원↑ 20%",
+        "tiers": [
+          [
+            0,
+            10
+          ],
+          [
+            30000,
+            5
+          ],
+          [
+            70000,
+            10
+          ],
+          [
+            100000,
+            20
+          ]
+        ]
+      },
+      "requirement": "실적 무관 · 현역병",
+      "short": "KB"
+    }
+  ],
+  "examples": [
+    {
+      "amount": 10000,
+      "expected": {
+        "hana": 3000,
+        "ibk": 1500,
+        "kb": 1000,
+        "shinhan": 1000
+      },
+      "note": "평일 · IBK 현역병 기준"
+    },
+    {
+      "amount": 25000,
+      "expected": {
+        "hana": 5000,
+        "ibk": 3750,
+        "kb": 1000,
+        "shinhan": 1000
+      },
+      "note": "평일 · IBK 현역병 기준"
+    },
+    {
+      "amount": 50000,
+      "expected": {
+        "hana": 10000,
+        "ibk": 5000,
+        "kb": 2500,
+        "shinhan": 10000
+      },
+      "note": "평일 · IBK 현역병 기준"
+    },
+    {
+      "amount": 100000,
+      "expected": {
+        "hana": 20000,
+        "ibk": 30000,
+        "kb": 20000,
+        "shinhan": 20000
+      },
+      "note": "평일 · IBK 현역병 기준"
+    },
+    {
+      "amount": 200000,
+      "expected": {
+        "hana": 20000,
+        "ibk": 100000,
+        "kb": 40000,
+        "shinhan": 40000
+      },
+      "ibkBreakdown": "기본 50,000 (30% 60,000에서 건당한도) + 특별 50,000",
+      "note": "평일 · IBK 현역병 · 특별할인 잔여 시"
+    }
+  ],
+  "sources": "각 카드사 상품설명서 (하나 2025.12 / IBK 2025.12 / 신한 2025.11 / KB 2026.04), 2026-10-11 확인. 신한 매월 10일 50%는 신한카드 확인 내용.",
+  "updated": "2026-10",
+  "sourceUrls": [
+    {
+      "name": "하나카드 상품설명서",
+      "url": "https://www.hanacard.co.kr/OPI41000000D.web?CD_PD_SEQ=18813&mID=PI41018813P&schID=pcd"
+    },
+    {
+      "name": "IBK 상품설명서",
+      "url": "https://www.ibk.co.kr/cardbiz/detailBizNew.ibk?PDLN_CD=12&PDGR_CD=11&PDTM_CD=296&PDCD=0001&pageId=CA01030000"
+    },
+    {
+      "name": "신한카드 상품설명서",
+      "url": "https://www.shinhancard.com/pconts/html/card/apply/check/1236922_2206.html"
+    },
+    {
+      "name": "KB국민카드 상품설명서",
+      "url": "https://card.kbcard.com/CRD/DVIEW/HCAMCXPRICAC0076?cooperationcode=04120&mainCC=a"
+    }
+  ]
+}

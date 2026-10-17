@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PX픽 — 나라사랑카드 PX 혜택 비교</title>
+  <meta name="description" content="나라사랑카드 4종의 PX 혜택을 비교하고, 결제 금액별로 가장 이득인 카드를 알려드려요.">
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1 class="header__title">PX픽</h1>
+      <p class="header__sub">나라사랑카드 PX 혜택 비교</p>
+    </header>
+
+    <main>
+      <section class="calc" id="calc" aria-label="계산기">
+        <div class="settings">
+          <p class="settings__label" id="ibk-label">IBK 조건</p>
+          <div class="segment" role="radiogroup" aria-labelledby="ibk-label" id="ibk-mode">
+            <button type="button" class="segment__item" role="radio" aria-checked="true" data-mode="soldier">현역병</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-mode="salary" tabindex="-1">IBK 급여이체</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-mode="none" tabindex="-1">해당 없음</button>
+          </div>
+          <p class="settings__desc">
+            <svg class="icon icon--16" aria-hidden="true"><use href="icons/sprite.svg#i-info"/></svg>
+            <span id="ibk-desc">특별할인 연 1회 기준</span>
+          </p>
+          <div class="toggles">
+            <button type="button" class="toggle" role="switch" aria-checked="true" id="toggle-ibk-special">
+              <span>IBK 특별할인 남음</span>
+              <span class="toggle__track" aria-hidden="true"><span class="toggle__thumb"></span></span>
+            </button>
+            <button type="button" class="toggle" role="switch" aria-checked="false" id="toggle-day10">
+              <span>매월 10일로 보기</span>
+              <span class="toggle__track" aria-hidden="true"><span class="toggle__thumb"></span></span>
+            </button>
+          </div>
+          <div id="day10-slot"></div>
+        </div>
+
+        <div class="amount" id="amount-area">
+          <label class="amount__label" for="amount">결제 금액</label>
+          <div class="amount__row">
+            <div class="amount__field" id="amount-field" data-value="0">
+              <input class="amount__input num" id="amount" type="text" inputmode="none" readonly size="1" autocomplete="off" placeholder="0" aria-describedby="amount-kor">
+              <span class="amount__unit" aria-hidden="true">원</span>
+            </div>
+            <button type="button" class="amount__clear" id="amount-clear" aria-label="금액 지우기" hidden>
+              <span class="amount__clear-face">
+                <svg class="icon icon--20" aria-hidden="true"><use href="icons/sprite.svg#i-close"/></svg>
+              </span>
+            </button>
+          </div>
+          <p class="amount__kor num" id="amount-kor">0원</p>
+        </div>
+
+        <p class="sr-only" id="result-live" aria-live="polite"></p>
+        <div class="result" id="result"></div>
+      </section>
+
+      <div class="band" aria-hidden="true"></div>
+
+      <section class="benefits" id="benefits" aria-labelledby="benefits-title">
+        <h2 class="benefits__title" id="benefits-title">카드별 혜택 한눈에</h2>
+        <div class="benefits__list" id="benefit-list"></div>
+        <button type="button" class="to-top" id="to-top">
+          <svg class="icon icon--20" aria-hidden="true"><use href="icons/sprite.svg#i-arrow-up"/></svg>
+          계산기로 돌아가기
+        </button>
+      </section>
+
+      <footer class="footer" id="footer"></footer>
+    </main>
+
+    <div class="keypad" id="keypad">
+      <div class="keypad__bar">
+        <div class="quick" role="group" aria-label="빠른 금액 더하기">
+          <button type="button" class="quick__chip num" data-add="1000" aria-label="1천원 더하기">+1천</button>
+          <button type="button" class="quick__chip num" data-add="5000" aria-label="5천원 더하기">+5천</button>
+          <button type="button" class="quick__chip num" data-add="10000" aria-label="1만원 더하기">+1만</button>
+          <button type="button" class="quick__chip num" data-add="50000" aria-label="5만원 더하기">+5만</button>
+        </div>
+        <button type="button" class="keypad__close" id="keypad-close" aria-label="키패드 닫기">
+          <svg class="icon icon--20" aria-hidden="true"><use href="icons/sprite.svg#i-chevron-down"/></svg>
+        </button>
+      </div>
+      <div class="keypad__grid">
+        <button type="button" class="key num" data-key="1">1</button>
+        <button type="button" class="key num" data-key="2">2</button>
+        <button type="button" class="key num" data-key="3">3</button>
+        <button type="button" class="key num" data-key="4">4</button>
+        <button type="button" class="key num" data-key="5">5</button>
+        <button type="button" class="key num" data-key="6">6</button>
+        <button type="button" class="key num" data-key="7">7</button>
+        <button type="button" class="key num" data-key="8">8</button>
+        <button type="button" class="key num" data-key="9">9</button>
+        <button type="button" class="key num" data-key="00">00</button>
+        <button type="button" class="key num" data-key="0">0</button>
+        <button type="button" class="key key--back" id="key-back" aria-label="한 글자 지우기">
+          <svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-backspace"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js'); });
+    }
+  </script>
+</body>
+</html>
