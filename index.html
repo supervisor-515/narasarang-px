@@ -41,6 +41,17 @@
         </div>
 
         <div class="quick" role="group" aria-label="빠른 금액 더하기"><button type="button" class="quick__chip" data-add="1000">+1천</button><button type="button" class="quick__chip" data-add="5000">+5천</button><button type="button" class="quick__chip" data-add="10000">+1만</button><button type="button" class="quick__chip" data-add="50000">+5만</button></div>
+        <details class="items" id="items">
+          <summary class="items__summary">물건별로 계산<svg class="icon icon--16" aria-hidden="true"><use href="icons/sprite.svg#i-chevron-down"/></svg></summary>
+          <div id="item-rows"></div>
+          <button type="button" class="secondary" id="item-add">물건 추가</button>
+          <p class="items__total"><span>합계</span><span class="num" id="item-total">0원</span></p>
+          <div class="items__status" id="item-status" role="status"></div>
+        </details>
+        <div class="paycards" id="paycards" role="group" aria-labelledby="paycards-label" hidden>
+          <p class="settings__desc" id="paycards-label">이번 결제에 쓸 카드 · 누르면 이번 비교에서만 빠져요</p>
+          <div class="paycards__list" id="paycards-list"></div>
+        </div>
         <p class="sr-only" id="result-live" aria-live="polite"></p>
         <div class="result" id="result"></div>
         <div class="action-area"><p class="settings__desc">입력한 기록 기준</p><label class="form-field">저장할 카드<select id="quick-card"></select></label><button type="button" class="primary" id="record-best" disabled>결제 기록</button><div id="quick-feedback" role="status"></div></div>

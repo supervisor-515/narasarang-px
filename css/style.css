@@ -657,3 +657,24 @@ button:disabled { opacity: .5; cursor: default; }
 
 .status-chips { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s1) 0; }
 #quick-feedback, #record-feedback { display: flex; align-items: center; gap: var(--s2); font: var(--t-caption1); color: var(--grey700); }
+
+/* 물건별 계산 */
+.items { padding: var(--s4) var(--s5) 0; }
+.items__summary { display: flex; align-items: center; gap: var(--s1); min-height: 44px; font: var(--t-caption1-strong); color: var(--grey700); cursor: pointer; list-style: none; }
+.items__summary::-webkit-details-marker { display: none; }
+.items__summary .icon { color: var(--grey500); transition: transform var(--motion); }
+.items[open] .items__summary .icon { transform: rotate(180deg); }
+.item-row { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s2); }
+.item-row input { min-width: 0; min-height: 44px; background: var(--grey100); color: var(--grey900); border: 1px solid var(--grey200); border-radius: var(--r-sm); padding: var(--s2) var(--s3); font: var(--t-body2); }
+.item-row input[type="text"] { flex: 1; }
+.item-row input[type="number"] { flex: none; width: 72px; }
+.item-row__unit { font: var(--t-body2); color: var(--grey700); }
+.item-row__del { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: var(--grey600); }
+.items__total { display: flex; justify-content: space-between; margin-top: var(--s3); font: var(--t-body2-strong); color: var(--grey900); }
+.items__status { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s1); font: var(--t-caption1); color: var(--grey600); }
+
+/* 이번 결제에 쓸 카드 */
+.paycards { padding: var(--s2) var(--s5) 0; }
+.paycards__list { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s2); }
+.pay-chip { display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; padding: 0 var(--s3); border-radius: var(--r-sm); background: var(--grey100); font: var(--t-caption1-strong); color: var(--grey500); text-decoration: line-through; transition: background-color var(--motion); }
+.pay-chip[aria-pressed="true"] { background: var(--blue50); color: var(--blue600); text-decoration: none; }

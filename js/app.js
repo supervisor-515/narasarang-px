@@ -362,6 +362,11 @@
     manualSpecialUsed: typeof saved.manualSpecialUsed === 'number' ? { [today.key.slice(0, 4)]: saved.manualSpecialUsed } : saved.manualSpecialUsed || {},
     monthAdjustments: saved.monthAdjustments || {},
     quickCard: null,
+    // 이번 비교에서만 뺀 카드 (저장하지 않음, 새로고침 시 초기화)
+    excluded: [],
+    // 물건별 계산 줄. itemsLinked면 합계가 곧 비교 금액
+    items: [{ price: 0, qty: 1 }],
+    itemsLinked: false,
     data: null,
     loadError: false,
     amount: 0,
@@ -439,6 +444,11 @@
     return { ibkMode: state.ibkMode, isDay10: state.day10View, records: state.records, date: state.today.key, ownedCards: state.ownedCards, manualSpecialUsed: state.manualSpecialUsed, monthAdjustments: state.monthAdjustments };
   }
 
+  // 보유 카드 중 이번 비교에서 빼지 않은 카드
+  function payCards() {
+    return state.ownedCards.filter(function (id) { return state.excluded.indexOf(id) === -1; });
+  }
+
   // 스크린리더에는 1위 요약만 읽어준다 (결과 전체를 live로 두면 키 입력마다 전부 다시 읽음)
   function setLive(text) {
     if (ui.live.textContent !== text) ui.live.textContent = text;
@@ -509,10 +519,12 @@
     if (!state.data) return;
 
     var o = opts();
+    o.ownedCards = payCards();
     var cards = state.data.cards;
     var ranked = rankCards(cards, state.amount, o);
     $('record-best').disabled = !ranked.active.length;
     renderQuickCards(ranked.active);
+    if (state.ownedCards.length && !o.ownedCards.length) { root.appendChild(h('p', { 'class': 'empty', text: '이번 결제에 쓸 카드를 모두 뺐어요. 위에서 쓸 카드를 하나 이상 눌러 주세요.' })); setLive('이번 결제에 쓸 카드를 골라 주세요.'); return; }
     if (!ranked.active.length && !ranked.inactive.length) { root.appendChild(h('p', { 'class': 'empty', text: '설정에서 보유 카드를 선택해 주세요.' })); setLive('보유 카드를 선택해 주세요.'); return; }
     var top = ranked.active.length ? ranked.active[0].result.total : 0;
     var rest = ranked.active;
@@ -679,16 +691,108 @@
     ui.clear.hidden = !n;
     ui.kor.textContent = korWon(n);
     $('record-best').disabled = !n || !state.data;
+    renderItemStatus();
     renderResult();
+  }
+  // 금액을 직접 고치면 물건별 합계와 분리한다
+  function setAmountDirect(n) {
+    state.itemsLinked = false;
+    setAmount(n);
   }
   ui.input.addEventListener('input', function () {
     var n = Number(ui.input.value.replace(/[^0-9]/g, ''));
-    setAmount(n <= MAX_AMOUNT ? n : state.amount);
+    setAmountDirect(n <= MAX_AMOUNT ? n : state.amount);
   });
-  ui.clear.addEventListener('click', function () { setAmount(0); ui.input.focus(); });
+  ui.clear.addEventListener('click', function () { setAmountDirect(0); ui.input.focus(); });
   document.querySelectorAll('[data-add]').forEach(function (b) {
-    b.addEventListener('click', function () { setAmount(Math.min(MAX_AMOUNT, state.amount + Number(b.dataset.add))); });
+    b.addEventListener('click', function () { setAmountDirect(Math.min(MAX_AMOUNT, state.amount + Number(b.dataset.add))); });
   });
+
+  // ----- 물건별 계산 -----
+
+  function itemsTotal() {
+    return state.items.reduce(function (sum, it) { return sum + it.price * it.qty; }, 0);
+  }
+
+  function renderItemStatus() {
+    var total = itemsTotal();
+    $('item-total').textContent = won(total);
+    $('amount-area').querySelector('.amount__label').textContent = state.itemsLinked ? '결제 금액 · 물건별 합계' : '결제 금액';
+    var root = $('item-status'); root.textContent = '';
+    if (total > MAX_AMOUNT) {
+      root.textContent = '합계가 ' + won(MAX_AMOUNT) + '을 넘어 결제 금액에 반영하지 않았어요.';
+    } else if (state.itemsLinked) {
+      root.textContent = '합계를 결제 금액으로 비교하고 있어요.';
+    } else if (total > 0 && total !== state.amount) {
+      root.appendChild(h('span', { text: '결제 금액을 직접 고쳐서 합계와 분리됐어요.' }));
+      var relink = h('button', { type: 'button', 'class': 'secondary', text: '합계로 비교' });
+      relink.addEventListener('click', function () { state.itemsLinked = true; syncItems(); });
+      root.appendChild(relink);
+    }
+  }
+
+  // 물건 줄을 고치면 합계가 비교 금액이 된다
+  function syncItems() {
+    var total = itemsTotal();
+    if (state.itemsLinked && total <= MAX_AMOUNT) setAmount(total);
+    else renderItemStatus();
+  }
+
+  function renderItems() {
+    var root = $('item-rows'); root.textContent = '';
+    state.items.forEach(function (it, i) {
+      var no = (i + 1) + '번째 물건';
+      var price = h('input', { type: 'text', inputmode: 'numeric', autocomplete: 'off', 'class': 'num', placeholder: '가격(원)', 'aria-label': no + ' 가격', value: it.price ? it.price.toLocaleString('ko-KR') : '' });
+      price.addEventListener('input', function () {
+        var n = Number(price.value.replace(/[^0-9]/g, ''));
+        if (n <= MAX_AMOUNT) it.price = n;
+        price.value = it.price ? it.price.toLocaleString('ko-KR') : '';
+        state.itemsLinked = true; syncItems();
+      });
+      var qty = h('input', { type: 'number', inputmode: 'numeric', min: '1', max: '99', step: '1', 'class': 'num', 'aria-label': no + ' 수량', value: String(it.qty) });
+      qty.addEventListener('input', function () {
+        var n = Number(qty.value);
+        // 입력 중 빈 칸은 0개로 계산하고, 범위를 벗어난 값은 이전 수량 유지
+        if (qty.value === '') it.qty = 0;
+        else if (Number.isInteger(n) && n >= 0 && n <= 99) it.qty = n;
+        else qty.value = String(it.qty);
+        state.itemsLinked = true; syncItems();
+      });
+      var del = h('button', { type: 'button', 'class': 'item-row__del', 'aria-label': no + ' 삭제' }, icon('close', 20));
+      del.addEventListener('click', function () {
+        state.items.splice(i, 1);
+        state.itemsLinked = true;
+        renderItems(); syncItems();
+        $('item-add').focus();
+      });
+      root.appendChild(h('div', { 'class': 'item-row' }, price, qty, h('span', { 'class': 'item-row__unit', 'aria-hidden': 'true', text: '개' }), del));
+    });
+  }
+
+  $('item-add').addEventListener('click', function () {
+    state.items.push({ price: 0, qty: 1 });
+    renderItems();
+    $('item-rows').lastChild.querySelector('input').focus();
+  });
+
+  // ----- 이번 결제에 쓸 카드 -----
+
+  function renderPayCards() {
+    var root = $('paycards-list'); root.textContent = '';
+    $('paycards').hidden = !state.ownedCards.length;
+    state.data.cards.filter(function (c) { return state.ownedCards.indexOf(c.id) !== -1; }).forEach(function (c) {
+      var on = state.excluded.indexOf(c.id) === -1;
+      var chip = h('button', { type: 'button', 'class': 'pay-chip', 'aria-pressed': String(on), 'data-card': c.id }, dot(c.color, !on), c.short);
+      chip.addEventListener('click', function () {
+        var nowOn = chip.getAttribute('aria-pressed') !== 'true';
+        state.excluded = nowOn ? state.excluded.filter(function (id) { return id !== c.id; }) : state.excluded.concat(c.id);
+        chip.setAttribute('aria-pressed', String(nowOn));
+        chip.querySelector('.dot').classList.toggle('dot--off', !nowOn);
+        renderResult();
+      });
+      root.appendChild(chip);
+    });
+  }
   ui.toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'auto' }); ui.input.focus(); });
 
   // ----- IBK 조건 세그먼트 -----
@@ -770,6 +874,7 @@
     $('settings-summary').textContent = '보유 카드 ' + state.ownedCards.length + '개 · IBK ' + ({soldier:'현역병',salary:'급여이체',none:'해당 없음'})[state.ibkMode];
     $('manual-special').value = manualFor(state.manualSpecialUsed, state.today.key);
     renderAdjustments();
+    renderPayCards();
     var root = $('owned-cards'); root.textContent = '';
     state.data.cards.forEach(function (c) {
       var input = h('input', { type: 'checkbox', value: c.id });
@@ -841,7 +946,7 @@
   $('record-best').addEventListener('click', function () {
     checkDate();
     if (!state.data || !state.amount) return;
-    var card = state.data.cards.find(function (c) { return c.id === $('quick-card').value && state.ownedCards.indexOf(c.id) !== -1 && isActive(c, opts()); });
+    var card = state.data.cards.find(function (c) { return c.id === $('quick-card').value && payCards().indexOf(c.id) !== -1 && isActive(c, opts()); });
     if (card) addRecord(card, state.amount, state.today.key, 'quick-feedback');
   });
   $('manual-special').addEventListener('change', function () {
@@ -886,6 +991,7 @@
   if (typeof saved.manualSpecialUsed === 'number') saveSettings();
 
   renderDay10();
+  renderItems();
   setAmount(0);
   loadData();
 })();
