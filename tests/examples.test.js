@@ -74,13 +74,13 @@ console.log('날짜 (Asia/Seoul)');
 console.log(`  2026-10-09T15:30Z → ${check('seoul day', engine.seoulDate(new Date('2026-10-09T15:30:00Z')).day, 10)}일`);
 console.log(`  2026-10-10T15:00Z → ${check('seoul day next', engine.seoulDate(new Date('2026-10-10T15:00:00Z')).key, '2026-10-11')}`);
 
-// 구간 힌트
+// 구간 힌트 (v3: 순이익 > 0 일 때만 노출, 20만원 특별할인 경계 포함)
 console.log('구간 힌트');
 const hintOpts = { ibkMode: 'soldier', isDay10: false };
 for (const [amount, expected] of [
-  [29000, '1,000원 더 담아 30,000원에 맞추면 최대 혜택 6,000원 (지금보다 +1,000)'],
-  [65000, '5,000원 더 담아 70,000원에 맞추면 최대 혜택 14,000원 (지금보다 +1,000)'],
-  [150000, null],
+  [29000, null],
+  [65000, null],
+  [150000, '50,000원 더 담으면 혜택 +55,000원 · 순이익 +5,000원'],
 ]) {
   const hint = engine.tierHint(data.cards, amount, hintOpts);
   console.log(`  ${amount.toLocaleString('ko-KR')}원: ${check('hint ' + amount, hint && engine.hintText(hint), expected)}`);

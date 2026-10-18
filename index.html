@@ -9,8 +9,6 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,11 +19,27 @@
     </header>
 
     <main>
+    <!-- 탭 1: 결제 -->
     <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare">
-      <section class="calc" id="calc" aria-label="계산기">
-        <div class="settings"><p id="settings-summary" class="settings__desc"></p><div id="day10-slot"></div></div>
+      <section class="calc" id="calc" aria-label="결제">
+        <!-- 신선도 줄 & 10일 자동 배지 -->
+        <div class="freshness-bar" id="freshness-bar" role="status">
+          <span class="freshness-bar__text" id="freshness-text">기록 확인 중…</span>
+          <span id="day10-badge" class="badge-day10" hidden>오늘은 매월 10일 혜택이 적용돼요</span>
+        </div>
+
+        <!-- 금액대 카드표: 입력 없이 바로 보는 1위 카드표 -->
+        <section class="card-table-section" id="card-table-section" aria-label="금액대별 최적 카드">
+          <div class="section-head">
+            <h2 class="section-title">지금 결제할 카드</h2>
+            <span class="section-sub">현재 잔여 한도 기준</span>
+          </div>
+          <div class="card-table" id="card-table" role="region" aria-label="금액대별 최적 카드 표"></div>
+        </section>
+
+        <!-- 정확한 금액 입력 -->
         <div class="amount" id="amount-area">
-          <label class="amount__label" for="amount">결제 금액</label>
+          <label class="amount__label" for="amount">정확한 금액 입력</label>
           <div class="amount__row">
             <div class="amount__field" id="amount-field" data-value="0">
               <input class="amount__input num" id="amount" type="text" inputmode="numeric" size="1" autocomplete="off" placeholder="0" aria-describedby="amount-kor">
@@ -40,7 +54,33 @@
           <p class="amount__kor num" id="amount-kor">0원</p>
         </div>
 
-        <div class="quick" role="group" aria-label="빠른 금액 더하기"><button type="button" class="quick__chip" data-add="1000">+1천</button><button type="button" class="quick__chip" data-add="5000">+5천</button><button type="button" class="quick__chip" data-add="10000">+1만</button><button type="button" class="quick__chip" data-add="50000">+5만</button></div>
+        <div class="quick" role="group" aria-label="빠른 금액 더하기">
+          <button type="button" class="quick__chip" data-add="1000">+1천</button>
+          <button type="button" class="quick__chip" data-add="5000">+5천</button>
+          <button type="button" class="quick__chip" data-add="10000">+1만</button>
+          <button type="button" class="quick__chip" data-add="50000">+5만</button>
+        </div>
+
+        <!-- 이번 결제에 쓸 카드 (제외 칩) -->
+        <div class="paycards" id="paycards" role="group" aria-labelledby="paycards-label" hidden>
+          <p class="settings__desc" id="paycards-label">이번 결제에 쓸 카드 · 누르면 이번 비교에서만 빠져요</p>
+          <div class="paycards__list" id="paycards-list"></div>
+        </div>
+
+        <p class="sr-only" id="result-live" aria-live="polite"></p>
+
+        <!-- 추천 히어로 결과 -->
+        <div class="result" id="result"></div>
+
+        <!-- 기록 저장 영역 (거래 단위 상태 및 실행 취소) -->
+        <div class="action-area" id="action-area">
+          <p class="settings__desc" id="action-desc">입력한 기록 기준</p>
+          <label class="form-field" id="quick-card-label">저장할 카드<select id="quick-card"></select></label>
+          <button type="button" class="primary" id="record-best" disabled>결제 기록</button>
+          <div id="quick-feedback" role="status" class="save-status"></div>
+        </div>
+
+        <!-- 물건별 가격×수량 계산: 접이식 보조 도구로 하단 배치 -->
         <details class="items" id="items">
           <summary class="items__summary">물건별로 계산<svg class="icon icon--16" aria-hidden="true"><use href="icons/sprite.svg#i-chevron-down"/></svg></summary>
           <div id="item-rows"></div>
@@ -48,70 +88,185 @@
           <p class="items__total"><span>합계</span><span class="num" id="item-total">0원</span></p>
           <div class="items__status" id="item-status" role="status"></div>
         </details>
-        <div class="paycards" id="paycards" role="group" aria-labelledby="paycards-label" hidden>
-          <p class="settings__desc" id="paycards-label">이번 결제에 쓸 카드 · 누르면 이번 비교에서만 빠져요</p>
-          <div class="paycards__list" id="paycards-list"></div>
-        </div>
-        <p class="sr-only" id="result-live" aria-live="polite"></p>
-        <div class="result" id="result"></div>
-        <div class="action-area"><p class="settings__desc">입력한 기록 기준</p><label class="form-field">저장할 카드<select id="quick-card"></select></label><button type="button" class="primary" id="record-best" disabled>결제 기록</button><div id="quick-feedback" role="status"></div></div>
       </section>
-
-      <div class="band" aria-hidden="true"></div>
-
-      <section class="benefits" id="benefits" aria-labelledby="benefits-title">
-        <h2 class="benefits__title" id="benefits-title">카드별 혜택 한눈에</h2>
-        <div class="benefits__list" id="benefit-list"></div>
-        <button type="button" class="to-top" id="to-top">
-          <svg class="icon icon--20" aria-hidden="true"><use href="icons/sprite.svg#i-arrow-up"/></svg>
-          계산기로 돌아가기
-        </button>
-      </section>
-
     </div>
+
+    <!-- 탭 2: 내역 -->
     <section id="panel-records" class="page" role="tabpanel" aria-labelledby="tab-records" hidden>
-      <h2>결제 기록</h2><div id="month-summary"></div>
-      <h3>최근 기록</h3><div id="record-list"></div>
-      <h3>기록 추가</h3>
-      <form id="record-form">
-        <label class="form-field">날짜<input id="record-date" type="date" required></label>
-        <label class="form-field">결제 금액<input id="record-amount" type="number" inputmode="numeric" min="1" max="9999999" step="1" required></label>
-        <label class="form-field">카드<select id="record-card" required></select></label>
-        <p id="record-preview" class="settings__desc"></p>
-        <button class="primary" type="submit" id="record-submit">추가하기</button>
-        <div id="record-feedback" role="status"></div>
-      </form>
+      <h2>결제 내역</h2>
+      
+      <!-- 구간별 잔여 게이지 -->
+      <section class="gauges-section" aria-label="구간별 잔여 한도">
+        <h3>구간별 잔여 한도</h3>
+        <div id="usage-gauges" class="usage-gauges"></div>
+      </section>
+
+      <!-- 이번 달 합계 -->
+      <div id="month-summary" class="month-summary-box"></div>
+
+      <!-- 기록 목록 -->
+      <section class="record-list-section" aria-label="기록 목록">
+        <h3>기록 목록</h3>
+        <div id="record-list"></div>
+      </section>
+
+      <!-- 기록 추가 -->
+      <section class="record-add-section" aria-label="기록 추가">
+        <h3>기록 직접 추가</h3>
+        <form id="record-form">
+          <label class="form-field">날짜<input id="record-date" type="date" required></label>
+          <label class="form-field">결제 금액<input id="record-amount" type="number" inputmode="numeric" min="1" max="9999999" step="1" required></label>
+          <label class="form-field">카드<select id="record-card" required></select></label>
+          <p id="record-preview" class="settings__desc"></p>
+          <button class="primary" type="submit" id="record-submit">추가하기</button>
+          <div id="record-feedback" role="status" class="save-status"></div>
+        </form>
+      </section>
     </section>
+
+    <!-- 탭 3: 내 카드 -->
     <section id="panel-settings" class="page" role="tabpanel" aria-labelledby="tab-settings" hidden>
-      <h2>설정</h2><fieldset><legend>보유 카드</legend><div id="owned-cards"></div></fieldset>
-        <div class="settings">
-          <p class="settings__label" id="ibk-label">IBK 조건</p>
-          <div class="segment" role="radiogroup" aria-labelledby="ibk-label" id="ibk-mode">
-            <button type="button" class="segment__item" role="radio" aria-checked="true" data-mode="soldier">현역병</button>
-            <button type="button" class="segment__item" role="radio" aria-checked="false" data-mode="salary" tabindex="-1">IBK 급여이체</button>
-            <button type="button" class="segment__item" role="radio" aria-checked="false" data-mode="none" tabindex="-1">해당 없음</button>
+      <h2>내 카드</h2>
+      
+      <!-- 보유 카드 및 자격 조건 -->
+      <section class="card-qualification-section">
+        <h3>자격 및 보유 카드</h3>
+        
+        <fieldset class="form-group">
+          <legend class="settings__label">신분</legend>
+          <div class="segment" role="radiogroup" aria-label="신분 선택" id="military-status">
+            <button type="button" class="segment__item" role="radio" aria-checked="true" data-status="soldier">병사</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-status="officer" tabindex="-1">간부</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-status="unconfirmed" tabindex="-1">미확인</button>
           </div>
-          <p class="settings__desc">
-            <svg class="icon icon--16" aria-hidden="true"><use href="icons/sprite.svg#i-info"/></svg>
-            <span id="ibk-desc">특별할인 연 1회 기준</span>
-          </p>
-          <label class="form-field">IBK 특별할인 올해 사용 횟수 (기록 외 수동값)<input id="manual-special" type="number" min="0" step="1" value="0"></label>
-          <p class="settings__desc">기록의 올해 특별할인 사용 횟수와 합산해요.</p>
-          <button type="button" class="toggle" role="switch" aria-checked="false" id="toggle-day10"><span>매월 10일로 보기</span><span class="toggle__track" aria-hidden="true"><span class="toggle__thumb"></span></span></button>
+          <p class="settings__desc">KB·IBK는 병사(현역병) 대상이에요.</p>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <legend class="settings__label">보유 카드</legend>
+          <div id="owned-cards" class="checkbox-grid"></div>
+        </fieldset>
+
+        <div class="form-group">
+          <label class="form-field">기본 카드 (동률 시 우선 추천)
+            <select id="default-card">
+              <option value="">기본 순서 (하나 &gt; IBK &gt; 신한 &gt; KB)</option>
+              <option value="hana">하나 나라사랑카드</option>
+              <option value="ibk">IBK 나라사랑카드</option>
+              <option value="shinhan">신한 나라사랑카드</option>
+              <option value="kb">KB국민 나라사랑카드</option>
+            </select>
+          </label>
         </div>
-      <p class="settings__desc">PX 혜택은 4종 모두 전월 실적 무관</p>
-      <h3>이번 달 기록 전 사용분</h3><p class="settings__desc">기록 전에 사용한 혜택액을 월 한도와 요약에 합산해요. 구간별 한도에 공통 적용해요.</p><div id="month-adjustments"></div><p id="offline-status" class="settings__desc" hidden>오프라인 사용 준비됨</p>
-      <h3>데이터 백업</h3><p class="settings__desc">가져오면 현재 기록과 설정을 백업 내용으로 교체해요.</p>
-      <button type="button" class="secondary" id="export-data">JSON 내보내기</button>
-      <label class="form-field">JSON 가져오기<input id="import-data" type="file" accept="application/json,.json"></label>
-      <button type="button" class="secondary" id="delete-data">전체 삭제</button>
-      <p class="settings__desc">모든 기록과 설정은 이 기기의 localStorage에만 저장되며 외부로 전송되지 않아요.</p>
+
+        <div class="card-specific-gates">
+          <h4>IBK 조건</h4>
+          <div class="segment" role="radiogroup" aria-label="IBK 현역병 조건" id="ibk-mode">
+            <button type="button" class="segment__item" role="radio" aria-checked="true" data-mode="soldier">현역병 인정</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-mode="salary" tabindex="-1">급여이체</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-mode="none" tabindex="-1">미인정/해당없음</button>
+          </div>
+          <p class="settings__desc" id="ibk-desc">특별할인 연 1회 기준</p>
+
+          <label class="form-field">급여이체 시작월 (다음 달부터 횟수 우대 적용)
+            <input id="ibk-salary-start" type="month">
+          </label>
+
+          <label class="form-field">IBK 특별할인 올해 사용 횟수 (기록 외 수동값)
+            <input id="manual-special" type="number" min="0" step="1" value="0">
+          </label>
+
+          <h4>신한 조건</h4>
+          <label class="checkbox-label">
+            <input id="shinhan-account" type="checkbox" checked>
+            <span>신한은행 계좌 연결됨 (미연결 시 캐시백 0원)</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 구간별 보정 (기록 전 사용분) -->
+      <section class="adjustment-section">
+        <h3>이번 달 기록 전 사용분 보정</h3>
+        <div id="prior-notice-banner" class="notice-banner" hidden>
+          <p>보정 모델이 소액·고액 구간별로 세분화되었습니다. 새 보정값을 확인해 주세요.</p>
+        </div>
+        <p class="settings__desc">기록을 시작하기 전에 이번 달에 이미 사용한 혜택액과 횟수를 입력해 잔여 한도를 맞출 수 있어요.</p>
+        <div id="month-adjustments" class="adjustments-container"></div>
+        <p id="offline-status" class="settings__desc" hidden>오프라인 사용 준비됨</p>
+      </section>
+
+      <!-- 카드별 상세 설명서 및 비PX 혜택 (접이식) -->
+      <section class="card-details-section">
+        <h3>카드별 상세 혜택 (접이식)</h3>
+        <p class="settings__desc">PX 조건 상세 문장과 놀이공원·영화·커피 등 비PX 혜택이에요.</p>
+        <div id="card-details-list" class="card-details-list"></div>
+      </section>
+
+      <!-- 데이터 관리 -->
+      <section class="data-management-section">
+        <h3>데이터 관리</h3>
+        <div class="data-actions">
+          <button type="button" class="secondary" id="export-data">JSON 백업 내보내기</button>
+          <label class="form-field">JSON 백업 가져오기<input id="import-data" type="file" accept="application/json,.json"></label>
+          <button type="button" class="secondary danger" id="delete-data">전체 데이터 초기화</button>
+        </div>
+        <p class="settings__desc">모든 기록과 설정은 기기의 localStorage에만 저장되며 외부 서버로 전송되지 않아요.</p>
+      </section>
     </section>
+
+    <!-- 온보딩 모달 다이얼로그 -->
+    <div id="onboarding-modal" class="modal-backdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <h2 id="onboarding-title" class="modal__title">처음 오셨군요! 🫡</h2>
+        <p class="modal__desc">정확한 추천을 위해 내 카드 상황을 확인해 주세요.</p>
+        
+        <div class="onboarding-step">
+          <label class="onboarding-label">1. 현재 신분</label>
+          <div class="segment" role="radiogroup" id="onboard-military">
+            <button type="button" class="segment__item" role="radio" aria-checked="true" data-status="soldier">병사 (현역병)</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-status="officer">간부</button>
+          </div>
+        </div>
+
+        <div class="onboarding-step">
+          <label class="onboarding-label">2. 가지고 있는 나라사랑카드</label>
+          <div id="onboard-cards" class="checkbox-grid"></div>
+        </div>
+
+        <div class="onboarding-step">
+          <label class="onboarding-label">3. 이번 달 사용 상태</label>
+          <div class="segment" role="radiogroup" id="onboard-usage">
+            <button type="button" class="segment__item" role="radio" aria-checked="true" data-usage="clean">이번 달 아직 안 씀</button>
+            <button type="button" class="segment__item" role="radio" aria-checked="false" data-usage="used">이미 쓴 적 있음</button>
+          </div>
+          <p class="settings__desc">이미 쓴 적이 있다면 나중에 '내 카드' 탭에서 보정값을 입력할 수 있어요.</p>
+        </div>
+
+        <div class="modal__actions">
+          <button type="button" class="primary" id="onboard-finish">시작하기</button>
+        </div>
+      </div>
+    </div>
+
     <p id="notice" class="notice" role="status"></p>
     <footer class="footer" id="footer"></footer>
     </main>
+
+    <!-- 하단 3개 탭 네비게이션: 결제 / 내역 / 내 카드 -->
     <nav class="tabs" role="tablist" aria-label="주요 화면">
-<button type="button" id="tab-compare" role="tab" aria-controls="panel-compare" aria-selected="true" tabindex="0" data-tab="compare"><svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-calculator"/></svg>비교</button><button type="button" id="tab-records" role="tab" aria-controls="panel-records" aria-selected="false" tabindex="-1" data-tab="records"><svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-history"/></svg>기록</button><button type="button" id="tab-settings" role="tab" aria-controls="panel-settings" aria-selected="false" tabindex="-1" data-tab="settings"><svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-settings"/></svg>설정</button></nav>
+      <button type="button" id="tab-compare" role="tab" aria-controls="panel-compare" aria-selected="true" tabindex="0" data-tab="compare">
+        <svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-calculator"/></svg>
+        <span>결제</span>
+      </button>
+      <button type="button" id="tab-records" role="tab" aria-controls="panel-records" aria-selected="false" tabindex="-1" data-tab="records">
+        <svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-history"/></svg>
+        <span>내역</span>
+      </button>
+      <button type="button" id="tab-settings" role="tab" aria-controls="panel-settings" aria-selected="false" tabindex="-1" data-tab="settings">
+        <svg class="icon icon--24" aria-hidden="true"><use href="icons/sprite.svg#i-settings"/></svg>
+        <span>내 카드</span>
+      </button>
+    </nav>
   </div>
 
   <script src="js/app.js"></script>
